@@ -1,0 +1,64 @@
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const audio = document.getElementById('background-music');
+    const toggleButton = document.getElementById('audio-toggle');
+    
+    // Check if the elements exist
+    if (!audio || !toggleButton) {
+        console.error("Audio or Button element not found!");
+        return;
+    }
+
+    let isPlaying = false; 
+
+    // Helper: Update Button Text
+    function updateButtonState(playing) {
+        if (playing) {
+            toggleButton.innerHTML = "🔇 Stop Music";
+            toggleButton.classList.add('active-music');
+        } else {
+            toggleButton.innerHTML = "🔊 Play Theme";
+            toggleButton.classList.remove('active-music');
+        }
+    }
+
+    // 1. SIMPLE CLICK HANDLER (The "Nuclear Option" fix)
+    toggleButton.addEventListener('click', () => {
+        if (isPlaying) {
+            audio.pause();
+            isPlaying = false;
+            updateButtonState(false);
+        } else {
+            // Force volume to 50% just in case
+            audio.volume = 0.5;
+            
+            // Try to play
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Audio started!
+                    isPlaying = true;
+                    updateButtonState(true);
+                })
+                .catch(error => {
+                    // If this runs, something is still wrong with the file path or name
+                    console.error("Playback failed:", error);
+                    alert("Music failed to play. Check your file name and path!");
+                });
+            }
+        }
+    });
+
+    // 2. Smooth Scroll Logic
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if(targetElement){
+                 targetElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
